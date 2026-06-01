@@ -1,0 +1,305 @@
+Here is an HTML document that creates a complete, proctored physics quiz with anti-tab protection, full-screen lock, and a functioning launch button.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ScienceBoy Proctored Physics Quiz | SI Units & Measurement</title>
+<style>
+:root {
+  --p: #00f5ff;
+  --s: #7b2fff;
+  --a: #ff6b35;
+  --g: #ffd700;
+  --bg: #020714;
+  --card: rgba(8, 18, 38, 0.92);
+  --tx: #e8f4fd;
+}
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  user-select: none; /* anti-select but not intrusive */
+}
+body {
+  font-family: 'Segoe UI', 'Inter', system-ui, monospace;
+  background: var(--bg);
+  color: var(--tx);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+#sf {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  z-index: 0;
+}
+body::before {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #7b2fff, transparent 70%);
+  top: -150px;
+  left: -150px;
+  opacity: 0.2;
+  animation: n1 14s ease-in-out infinite alternate;
+}
+body::after {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #00f5ff, transparent 70%);
+  bottom: -100px;
+  right: -100px;
+  opacity: 0.15;
+  animation: n2 18s ease-in-out infinite alternate;
+}
+@keyframes n1 { to { transform: translate(60px, 80px) scale(1.2); } }
+@keyframes n2 { to { transform: translate(-60px, -60px) scale(1.15); } }
+.wrap {
+  position: relative;
+  z-index: 2;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.scr {
+  display: none;
+  width: 100%;
+  max-width: 920px;
+  background: var(--card);
+  border: 1px solid rgba(0, 245, 255, 0.25);
+  border-radius: 32px;
+  padding: 30px 32px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 245, 255, 0.15);
+}
+.scr.on { display: block; animation: fu 0.4s ease; }
+@keyframes fu { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* login */
+.logo { text-align: center; margin-bottom: 22px; }
+.ico { font-size: 68px; display: inline-block; animation: fl 3.8s ease-in-out infinite; }
+@keyframes fl { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+.ltitle { font-size: clamp(28px, 6vw, 44px); font-weight: 900; letter-spacing: 2px; background: linear-gradient(135deg, var(--p), var(--s), #c084fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lsub { font-size: 10px; letter-spacing: 4px; color: rgba(255,255,255,0.4); margin-top: 6px; }
+.brow { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+.bdg { padding: 5px 14px; border-radius: 40px; background: rgba(0,245,255,0.1); border: 1px solid rgba(0,245,255,0.3); font-size: 11px; font-weight: 600; color: var(--p); }
+.lbl { display: block; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: #8f9bb5; margin-bottom: 6px; font-weight: 700; }
+.inp { width: 100%; padding: 13px 16px; background: rgba(2, 7, 25, 0.8); border: 1px solid rgba(0,245,255,0.3); border-radius: 16px; color: var(--tx); font-size: 15px; outline: none; margin-bottom: 16px; transition: 0.2s; }
+.inp:focus { border-color: var(--p); box-shadow: 0 0 12px rgba(0,245,255,0.4); }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 12px 24px; border-radius: 60px; border: none; cursor: pointer; font-weight: 800; letter-spacing: 1.2px; font-size: 12px; text-transform: uppercase; transition: 0.2s; font-family: inherit; }
+.bgo { width: 100%; background: linear-gradient(95deg, var(--p), var(--s)); color: #000; box-shadow: 0 6px 20px rgba(0,245,255,0.4); }
+.bgo:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 12px 24px rgba(0,245,255,0.5); }
+.bnav { background: rgba(0,245,255,0.08); border: 1px solid rgba(0,245,255,0.4); color: var(--p); padding: 10px 22px; }
+.bnav:disabled { opacity: 0.3; cursor: not-allowed; }
+.bsub { background: linear-gradient(95deg, var(--a), #d93a00); color: white; box-shadow: 0 4px 12px rgba(255,107,53,0.5); }
+/* quiz specific */
+.qhdr { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; margin-bottom: 20px; }
+.stag { background: #0a1022; padding: 6px 16px; border-radius: 36px; font-size: 12px; border: 1px solid #2a3555; }
+.tbox { background: #03071e; border: 1px solid rgba(255,107,53,0.6); border-radius: 60px; padding: 5px 20px; font-weight: bold; }
+#tmr { font-size: 22px; font-weight: 800; color: var(--a); font-family: monospace; letter-spacing: 2px; }
+.prog { margin-bottom: 20px; }
+.pinfo { font-size: 11px; display: flex; justify-content: space-between; margin-bottom: 6px; }
+.ptrack { height: 6px; background: #101a2e; border-radius: 8px; }
+.pfill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--s), var(--p)); border-radius: 8px; transition: width 0.2s; }
+.palette-wrap { background: rgba(0,0,0,0.3); border-radius: 24px; padding: 12px 16px; margin-bottom: 18px; }
+.palette { display: flex; flex-wrap: wrap; gap: 8px; }
+.pnum { width: 40px; height: 40px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: #0f1428; border: 1px solid #2a345a; cursor: pointer; transition: 0.1s; }
+.pnum.done { background: rgba(0,245,255,0.25); border-color: var(--p); color: var(--p); box-shadow: 0 0 4px cyan; }
+.pnum.curr { background: var(--s); border-color: white; color: white; transform: scale(1.02); }
+.qtxt { font-size: 18px; font-weight: 600; line-height: 1.4; margin-bottom: 22px; border-left: 4px solid var(--p); padding-left: 18px; }
+.opts { display: flex; flex-direction: column; gap: 12px; margin-bottom: 28px; }
+.opt { display: flex; align-items: center; gap: 16px; padding: 12px 16px; background: rgba(10, 20, 45, 0.7); border: 1px solid #2a3255; border-radius: 20px; cursor: pointer; transition: 0.15s; }
+.opt:hover { border-color: var(--p); background: rgba(0,245,255,0.07); transform: translateX(4px); }
+.opt.sel { border-color: var(--p); background: rgba(0,245,255,0.15); box-shadow: 0 0 10px rgba(0,245,255,0.2); }
+.olet { width: 34px; height: 34px; background: #111a2c; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+.opt.sel .olet { background: var(--p); color: black; }
+.navrow { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+/* result */
+.rtitle { font-size: 28px; font-weight: 800; text-align: center; background: linear-gradient(135deg, var(--g), var(--a)); -webkit-background-clip: text; background-clip: text; color: transparent; margin-bottom: 18px; }
+.ringw { display: flex; justify-content: center; margin: 10px 0 20px; }
+.ringb { position: relative; width: 170px; height: 170px; }
+.rbg { fill: none; stroke: rgba(255,255,255,0.08); stroke-width: 12; }
+.rfl { fill: none; stroke-width: 12; stroke: url(#rg); stroke-linecap: round; stroke-dasharray: 490; transition: stroke-dashoffset 1.2s; }
+.sts { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin: 20px 0; }
+.st { background: rgba(255,255,255,0.03); border-radius: 20px; padding: 12px; text-align: center; }
+.sinfo { background: rgba(0,245,255,0.07); border-radius: 20px; padding: 12px; font-size: 13px; text-align: center; margin: 14px 0; }
+.eml { text-align: center; padding: 12px; border-radius: 60px; background: #0a1022; margin-bottom: 18px; font-size: 12px; }
+.toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: #111a2c; backdrop-filter: blur(16px); border-left: 5px solid #ff6b35; padding: 10px 24px; border-radius: 60px; z-index: 9999; font-weight: 600; box-shadow: 0 8px 20px black; display: none; }
+.warning-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: #ff1744cc; text-align: center; padding: 8px; font-size: 12px; z-index: 9998; backdrop-filter: blur(10px); display: none; font-weight: bold; letter-spacing: 1px; }
+@media (max-width: 600px) { .scr { padding: 20px; } .row2 { grid-template-columns: 1fr; } .palette .pnum { width: 36px; height: 36px; } }
+</style>
+</head>
+<body>
+<canvas id="sf"></canvas>
+<div id="toastMsg" class="toast"></div>
+<div id="tabWarningBar" class="warning-bar">⚠️ CHEATING DETECTED: Tab switch / window blur — recorded for proctor review ⚠️</div>
+<div class="wrap">
+
+<!-- LOGIN SCREEN -->
+<div class="scr on" id="screenLogin">
+  <div class="logo"><span class="ico">🔬⚛️</span><div class="ltitle">SCIENCEBOY</div><div class="lsub">PROCTORED · PHYSICS CH 1</div></div>
+  <div class="brow"><span class="bdg">📋 60 MCQs</span><span class="bdg">⏱ 60 min timer</span><span class="bdg">🛡️ Anti-tab lock</span><span class="bdg">📧 auto email</span></div>
+  <label class="lbl">FULL NAME *</label>
+  <input class="inp" id="fullName" placeholder="e.g., Muhammad Ahmed" autocomplete="off">
+  <div class="row2"><div><label class="lbl">ROLL NUMBER</label><input class="inp" id="rollNo" placeholder="2025-001"></div>
+  <div><label class="lbl">CLASS / SECTION</label><input class="inp" id="classSec" placeholder="9-A"></div></div>
+  <button class="btn bgo" id="launchQuizBtn">🚀 LAUNCH SECURE QUIZ</button>
+  <div style="font-size:9px; text-align:center; margin-top:14px; color:#4a5568;">⚠️ Fullscreen + anti-cheat: leaving tab triggers warning</div>
+</div>
+
+<!-- QUIZ INTERFACE -->
+<div class="scr" id="screenQuiz">
+  <div class="qhdr"><div class="stag">👨‍🎓 <strong id="studentNameLabel">--</strong> <span id="rollLabel"></span></div>
+  <div class="tbox" id="timerBox"><span>⏳</span><span id="timerDisplay">60:00</span></div></div>
+  <div class="prog"><div class="pinfo"><span id="qCounterLabel">Q1/60</span><span id="progressPercent">0%</span></div><div class="ptrack"><div class="pfill" id="progressFill"></div></div></div>
+  <div class="palette-wrap"><div class="palette-title">📌 QUESTION GRID</div><div id="paletteGrid" class="palette"></div></div>
+  <div class="qtxt" id="questionText"></div>
+  <div class="opts" id="optionsContainer"></div>
+  <div class="navrow"><div><button class="btn bnav" id="prevBtn">◀ PREV</button><button class="btn bnav" id="nextBtn">NEXT ▶</button></div><button class="btn bsub" id="submitQuizBtn">✅ SUBMIT QUIZ</button></div>
+  <div style="font-size:9px; text-align:center; margin-top:15px; color:#5f6c8a;">🔒 Anti-tab active | Do not switch tabs or windows</div>
+</div>
+
+<!-- RESULT SCREEN -->
+<div class="scr" id="screenResult">
+  <div class="rtitle">🏁 ASSESSMENT REPORT</div>
+  <div class="ringw"><div class="ringb"><svg viewBox="0 0 170 170"><defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#7b2fff"/><stop offset="100%" stop-color="#00f5ff"/></linearGradient></defs><circle class="rbg" cx="85" cy="85" r="78"/><circle class="rfl" id="scoreCircle" cx="85" cy="85" r="78"/></svg><div class="rctr"><div class="rsco" id="scoreNumber">0</div><div class="rlbl">/ 60</div></div></div></div>
+  <div class="grw"><div class="grl" id="gradeLetter">A+</div><div class="grt" id="gradeRemark">EXCELLENT</div></div>
+  <div class="sts"><div class="st"><div class="sv" id="correctCount">0</div><div class="sl">✔ Correct</div></div><div class="st"><div class="sv" id="wrongCount">0</div><div class="sl">✘ Wrong</div></div><div class="st"><div class="sv" id="skippedCount">0</div><div class="sl">⏩ Skipped</div></div><div class="st"><div class="sv" id="percentScore">0%</div><div class="sl">Score</div></div></div>
+  <div class="sinfo" id="summaryMessage"></div>
+  <div id="emailStatus" class="eml">📡 Generating report & emailing teacher...</div>
+  <button class="btn bgo" id="restartBtn">🔄 New Attempt</button>
+</div>
+</div>
+
+<script>
+// ---------- 60 Physics Questions (Units, Measurement, Area/Volume) ----------
+const FULL_SET = [
+  {text:"Which group contains only fundamental SI physical quantities?", opts:["Length, force, time","Length, mass, time","Mass, volume, temperature","Temperature, pressure, time"], ans:1},
+  {text:"Disadvantage of traditional 'cubit' or 'handspan'?", opts:["Not decimal","Varies between individuals","Only small objects","Only agricultural"], ans:1},
+  {text:"In MKS & CGS, same unit for?", opts:["Length","Mass","Time","Area"], ans:2},
+  {text:"Speed is a:", opts:["Base quantity","Base quantity","Derived (length/time)","Derived"], ans:2},
+  {text:"Prefix 10⁻³ is:", opts:["Kilo","Centi","Milli","Micro"], ans:2},
+  {text:"250 cm → meters (SI):", opts:["0.25 m","2.5 m","25 m","2500 m"], ans:1},
+  {text:"Smallest measurable distance of instrument:", opts:["Range","Main scale","Zero error","Least count"], ans:3},
+  {text:"Vernier caliper part for internal diameter:", opts:["Outer jaws","Upper internal jaws","Depth strip","Main scale"], ans:1},
+  {text:"Scientific notation purpose:", opts:["Local units","Handle very large/small numbers","Reduce least count","Convert vectors"], ans:1},
+  {text:"Desk 2.0m x 1.5m area:", opts:["3.0 m²","3.5 m²","0.5 m²","6.0 m²"], ans:0},
+  {text:"Three-dimensional space enclosed:", opts:["Surface area","Mass density","Volume","Perimeter"], ans:2},
+  {text:"Trapezium area formula (a,b parallel, h height):", opts:["a+b×h","½(a+b)×h","(a×b)+h","½(a×b)×h"], ans:1},
+  {text:"Circle radius=3m (π=3.14) area:", opts:["9.42 m²","18.84 m²","28.26 m²","37.68 m²"], ans:2},
+  {text:"Cube edge 4cm volume:", opts:["16 cm³","24 cm³","48 cm³","64 cm³"], ans:3},
+  {text:"Cuboid 5x3x4 cm volume:", opts:["12 cm³","23 cm³","60 cm³","120 cm³"], ans:2},
+  {text:"'Seer' & 'tola' measured:", opts:["Density","Mass","Weight","Volume"], ans:1},
+  {text:"One base + one derived pair:", opts:["Mass & Time","Distance & Force","Speed & Area","Volume & Pressure"], ans:1},
+  {text:"Metric 'kilo' = ?", opts:["10²","10³","10⁻²","10⁻³"], ans:1},
+  {text:"Measuring tape advantage:", opts:["Smaller least count","Measure curved/long paths","Eliminate zero error","Measure mass"], ans:1},
+  {text:"Trapezium sides 2cm & 3cm, height 4cm area:", opts:["10 cm²","12 cm²","20 cm²","24 cm²"], ans:0},
+  {text:"Area (m²) is a:", opts:["Base","Base","Derived (L×L)","Derived only squares"], ans:2},
+  {text:"0.056 m → mm:", opts:["0.56 mm","5.6 mm","56 mm","560 mm"], ans:2},
+  {text:"Prefix 'centi' =", opts:["10⁻¹","10⁻²","10⁻³","10⁻⁶"], ans:1},
+  {text:"Trapezium sides 5cm,7cm h=3cm area:", opts:["18 cm²","21 cm²","24 cm²","36 cm²"], ans:0},
+  {text:"Vernier caliper least count (1mm main, 10 div):", opts:["0.1 mm","0.01 mm","0.05 mm","0.5 mm"], ans:0},
+  {text:"SI unit of time:", opts:["minute","hour","second","day"], ans:2},
+  {text:"1 micrometer = ? m", opts:["10⁻⁶","10⁻³","10⁻⁹","10⁻⁵"], ans:0},
+  {text:"Rectangle 12.5m × 4.2m area (SF):", opts:["52.5 m²","52.50 m²","53 m²","52 m²"], ans:0},
+  {text:"Base SI quantity:", opts:["Velocity","Force","Electric current","Energy"], ans:2},
+  {text:"Sphere radius 7cm volume (π=3.14):", opts:["1436 cm³","1436","1430","1400"], ans:0},
+  {text:"Screw gauge 0.001 cm, reading 0.345 cm : sig figs", opts:["2","3","4","5"], ans:1},
+  {text:"1 nanometer = ?", opts:["10⁻⁹","10⁻¹²","10⁻⁶","10⁻³"], ans:0},
+  {text:"Derived unit for force:", opts:["kg·m/s²","Newton","g·cm/s²","All"], ans:3},
+  {text:"5 km → cm:", opts:["500,000","50,000","5,000","500"], ans:0},
+  {text:"Cylinder r=5cm h=10cm volume (π=3.14):", opts:["785 cm³","785","785.0","780"], ans:0},
+  {text:"Not a fundamental quantity:", opts:["Mass","Temperature","Weight","Time"], ans:2},
+  {text:"Prefix for 10⁹:", opts:["Giga","Mega","Tera","Kilo"], ans:0},
+  {text:"Circle diameter 10cm area (π=3.14):", opts:["78.5 cm²","31.4","314","78.5"], ans:0},
+  {text:"Least count main 1mm & 10 vernier:", opts:["0.1 mm","0.01 mm","0.05 mm","0.5 mm"], ans:0},
+  {text:"Luminous intensity unit:", opts:["Candela","Lumen","Lux","Watt"], ans:0},
+  {text:"Light year unit of:", opts:["Time","Distance","Speed","Energy"], ans:1},
+  {text:"Mass 1.67e-27 kg prefix range:", opts:["yocto","zepto","atto","femto"], ans:0},
+  {text:"Parallax error type:", opts:["Systematic","Random","Gross","Zero"], ans:1},
+  {text:"Zero error in vernier:", opts:["positive only","negative only","positive/negative","none"], ans:2},
+  {text:"Same SI unit in all systems:", opts:["Force","Pressure","Time","Energy"], ans:2},
+  {text:"Area 24 m², length 6m width:", opts:["4 m","5 m","6 m","3 m"], ans:0},
+  {text:"Prefix micro symbol:", opts:["μ","m","n","p"], ans:0},
+  {text:"1 Ångstrom = ? m", opts:["10⁻¹⁰","10⁻⁸","10⁻¹²","10⁻⁹"], ans:0},
+  {text:"Density derived from:", opts:["Mass/Volume","Length³","Force/Area","Work/Time"], ans:0},
+  {text:"Square 2.5cm area SF:", opts:["6.25 cm²","6.2","6","6.25"], ans:0},
+  {text:"Sphere radius 3cm volume (π=3.14):", opts:["113.04 cm³","113","113.04","113.1"], ans:0},
+  {text:"Vector quantity:", opts:["Speed","Distance","Displacement","Mass"], ans:2},
+  {text:"SI pressure unit:", opts:["Pascal","Newton","Joule","Watt"], ans:0},
+  {text:"Number of base SI units:", opts:["7","5","6","8"], ans:0},
+  {text:"Amount of substance unit:", opts:["Mole","Gram","Kilogram","Liter"], ans:0},
+  {text:"Mega = ?", opts:["10⁶","10⁹","10³","10¹²"], ans:0},
+  {text:"Trapezium height 8cm, sides 10&6cm area:", opts:["64 cm²","48 cm²","80 cm²","128 cm²"], ans:0},
+  {text:"Cuboid volume 120 cm³, base 30 cm² height:", opts:["4 cm","5 cm","6 cm","3 cm"], ans:0},
+  {text:"Electric charge SI derived:", opts:["Coulomb","Ampere","Volt","Ohm"], ans:0},
+  {text:"Meter rod least count (mm):", opts:["0.1 cm","0.01 cm","1 mm","0.5 mm"], ans:0}
+];
+while(FULL_SET.length < 60) FULL_SET.push({text:"SI unit of length is:", opts:["meter","cm","km","mm"], ans:0});
+const QUIZ = FULL_SET.slice(0,60);
+
+let userAnswers = new Array(60).fill(null);
+let currentIdx = 0;
+let quizActive = false;
+let isSubmitted = false;
+let timerSeconds = 3600;
+let timerInterval = null;
+let student = { name: "", roll: "", classSec: "" };
+let tabViolations = 0;
+
+// DOM refs
+const loginScreen = document.getElementById('screenLogin');
+const quizScreen = document.getElementById('screenQuiz');
+const resultScreen = document.getElementById('screenResult');
+const launchBtn = document.getElementById('launchQuizBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const submitQuizBtn = document.getElementById('submitQuizBtn');
+const restartBtn = document.getElementById('restartBtn');
+const toastDiv = document.getElementById('toastMsg');
+const warningBar = document.getElementById('tabWarningBar');
+
+function showToast(msg, isErr = false) {
+  toastDiv.style.display = 'block';
+  toastDiv.textContent = msg;
+  toastDiv.style.background = isErr ? '#6a1e2a' : '#0f382a';
+  toastDiv.style.borderLeftColor = isErr ? '#ff6b6b' : '#00f5ff';
+  setTimeout(() => { toastDiv.style.display = 'none'; }, 2300);
+}
+
+// ---------- ANTI-TAB / FOCUS LOCK ----------
+let focusLostCount = 0;
+function handleVisibilityChange() {
+  if (!quizActive || isSubmitted) return;
+  if (document.hidden || !document.hasFocus()) {
+    focusLostCount++;
+    warningBar.style.display = 'block';
+    showToast(`⚠️ Warning: Tab/window switched (${focusLostCount})! Proctor notified.`, true);
+    setTimeout(() => { warningBar.style.display = 'none'; }, 2000);
+    if (focusLostCount >= 3) {
+      showToast("❌ Multiple violations - auto-submitting quiz.", true);
+      if(quizActive && !isSubmitted) finalizeQuiz();
+    }
+  } else {
+    warningBar.style.display = 'none';
+  }
+}
+document.addEventListener('visibilitychange', handleVisibilityChange);
+window.addEventListener('blur', () => { if(quizActive && !isSubmitted) handleVisibilityChange(); });
+window.addEventListener('focus', () => { if(warningBar) warningBar.style.display = 'none'; });
+
+/
